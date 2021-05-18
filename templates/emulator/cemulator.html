@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form method="POST" action="/cemulator">
+        Name: <input name="name" type="text">
+        <select name="image">
+            {% for i in range(image|length) %}
+            <option value="{{ image[i][0] }}">{{ image[i][0] }}</option>
+            {% endfor %}                                              
+        </select>
+        <input type="submit">
+    </form>
+{% endblock %}
