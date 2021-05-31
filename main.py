@@ -34,6 +34,7 @@ if not isAdmin():
 
 
 sdkenv = str(Path.home()/'sdk-env')
+download = str(Path.home()/'Download')
 if platform.system() == 'Darwin':
     pt = 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip'
     pkg = re.findall(r"commandlinetools-mac-[\d]{7}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
@@ -72,11 +73,11 @@ def dlsdk():
         # HYPERVISOR
         if _os == 'Darwin':
             os.makedirs(sdkenv+'/haxm')
-            wget.download(haxm, str(Path.home()/'Downloads/haxm.zip'))
-            zf = ZipFile(str(Path.home()/'Downloads/haxm.zip'))
+            wget.download(haxm, download+'/haxm.zip')
+            zf = ZipFile(download+'/haxm.zip')
             zf.extractall(sdkenv+'/haxm')
             zf.close()
-            os.remove(str(Path.home()/'Downloads/haxm.zip'))
+            os.remove(download+'/haxm.zip')
         elif _os == 'Windows':
             global hvs
             if 'Enabled' in hyperv or 'Activé' in hyperv:
@@ -84,32 +85,32 @@ def dlsdk():
             else:
                 if 'AMD' in proc:
                     os.makedirs(sdkenv+'/gvm')
-                    wget.download(gvm, str(Path.home()/'Downloads/gvm.zip'))
-                    zf = ZipFile(str(Path.home()/'Downloads/gvm.zip'))
+                    wget.download(gvm, download+'/gvm.zip')
+                    zf = ZipFile(download+'/gvm.zip')
                     zf.extractall(sdkenv+'/gvm')
                     zf.close()
-                    os.remove(str(Path.home()/'Downloads/gvm.zip'))
+                    os.remove(download+'/gvm.zip')
                 else:
                     os.makedirs(sdkenv+'/haxm')
-                    wget.download(haxm, str(Path.home()/'Downloads/haxm.zip'))
-                    zf = ZipFile(str(Path.home()/'Downloads/haxm.zip'))
+                    wget.download(haxm, download+'/haxm.zip')
+                    zf = ZipFile(download+'/haxm.zip')
                     zf.extractall(sdkenv+'/haxm')
                     zf.close()
-                    os.remove(str(Path.home()/'Downloads/haxm.zip'))
+                    os.remove(download+'/haxm.zip')
         # PLATFORM
         os.makedirs(sdkenv+'/platforms')
-        wget.download(pt, str(Path.home()/'Downloads/platform.zip'))
-        zf = ZipFile(str(Path.home()/'Downloads/platform.zip'))
+        wget.download(pt, download+'/platform.zip')
+        zf = ZipFile(download+'/platform.zip')
         zf.extractall(sdkenv)
         zf.close()
-        os.remove(str(Path.home()/'Downloads/platform.zip'))
+        os.remove(download+'/platform.zip')
         # CMDLINE-TOOLS
         os.makedirs(sdkenv+'/cmdline-tools')
-        wget.download(tools, str(Path.home()/'Downloads/tools.zip'))
-        zf = ZipFile(str(Path.home()/'Downloads/tools.zip'))
+        wget.download(tools, download+'/tools.zip')
+        zf = ZipFile(download+'/tools.zip')
         zf.extractall(sdkenv+'/cmdline-tools')
         zf.close()
-        os.remove(str(Path.home()/'Downloads/tools.zip'))
+        os.remove(download+'/tools.zip')
         os.rename(sdkenv+'/cmdline-tools/cmdline-tools', sdkenv+'/cmdline-tools/latest')
         # LICENSES
         shutil.copytree('licenses', sdkenv+'/licenses')
