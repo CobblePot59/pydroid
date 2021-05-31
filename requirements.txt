@@ -1,3 +1,4 @@
 flask
 wget
 termcolor
+requests
