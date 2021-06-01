@@ -34,7 +34,7 @@ if not isAdmin():
 
 
 sdkenv = str(Path.home()/'sdk-env')
-download = str(Path.home()/'Download')
+download = str(Path.home()/'Downloads')
 if platform.system() == 'Darwin':
     pt = 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip'
     pkg = re.findall(r"commandlinetools-mac-[\d]{7}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
