@@ -2,7 +2,7 @@
 Manage your sdks and emulators in a light and simplified way using a webui.
 
 ## Prerequisites
-1) Install java runtime environment
+Install java runtime environment
 
 ## Installation / Configuration
 1) Download this project.
