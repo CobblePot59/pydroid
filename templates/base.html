@@ -1,24 +1,29 @@
 <!DOCTYPE html>
-<html>
-<head>
-	<title>avd</title>
-	<link rel="stylesheet" href="../static/style.css">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-	{% block head %}{% endblock %}
-</head>
-<body>
-	<h1> AVD MANAGER </h1>
-	{% if message|length > 1 %}
-	<div class="alert alert-success" role="alert">
-		{{ message }}
-	</div>
-	{% else %}
-	{% block content %}{% endblock %}
-	{% endif %}
-      	<a href=/sdk>SDK</a>
-       	<a href=/emulator>Emulator</a>
-</body>
+<html lang="fr-FR">
+  <head>
+    <meta charset="utf-8">
+	  <title>AVD MANAGER</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=,shrink-to-fit=no">
+	  <link rel="icon" href="/static/images/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="static/plugins/bootstrap/bootstrap-icons.css">
+    <link rel="stylesheet" href="static/plugins/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="static/plugins/dataTables/dataTables.bootstrap5.css">
+  </head>
+  <body>
+      {% for category, message in get_flashed_messages(with_categories=true) %}
+        <div class="alert alert-{{ category }} alert-dismissable" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="close">
+            <span aria-hidden="true">x</span>
+          </button>
+          {{ message }}    
+        </div>
+      {% endfor %}
+      <script src="static/plugins/jquery/jquery.js"></script>
+      <script src="static/plugins/jquery/jquery-ui.js"></script>
+      <script src="static/plugins/bootstrap/bootstrap.bundle.min.js"></script>
+      <script src="static/plugins/dataTables/jquery.dataTables.js"></script>
+      <script src="static/plugins/dataTables/dataTables.bootstrap5.js"></script>
+      <script src="static/js/index.js"></script>
+      {% block content %}{% endblock %}
+  </body>
 </html>
