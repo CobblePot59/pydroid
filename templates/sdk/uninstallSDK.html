@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% include 'navbar.html' %}
+{% block content %}
+    <form method="POST" action="/uninstallSDK">
+        <table id="data" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Version</th>
+                    <th>Image</th>
+                    <th>Description</th>
+                    <th>Installed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(image|length) %}
+                {% if 1 in installed[i] %}
+                <tr>
+                    <td>{{ version[i][0] }}</td>
+                    <td>{{ image[i][0] }}</td>
+                    <td>{{ description[i][0] }}</td>
+                    <td><input type="checkbox" name="checkbox" value={{i}}></td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-success" name="submit" value="submit">Submit</button>
+    </form>
+{% endblock %}
