@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% include 'navbar.html' %}
+{% block content %}
+    <div class="container">
+        <form method="POST" action="/createEmulator">
+          <div class="form-group row">
+            <div class="col-xs-2">
+              <label for="name">Name: </label>
+              <input class="form-control" id="name" name="name" type="text">
+            </div>
+            <div class="col-xs-2">
+              <label for="image">Image: </label>
+              <select class="form-select" aria-label="Default select example" id="image" name="image" >
+                {% for i in range(image|length) %}
+                <option value="{{ image[i][0] }}">{{ image[i][0] }}</option>
+                {% endfor %}                                              
+            </select>
+            </div>
+            <div class="col-xs-2">
+                <br>
+                <button type="submit" class="btn btn-success" name="submit" value="submit">Submit</button>
+            </div>
+          </div>
+        </form>
+    </div>
+{% endblock %}

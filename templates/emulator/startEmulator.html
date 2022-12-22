@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% include 'navbar.html' %}
+{% block content %}
+    <form method="POST" action="/startEmulator">
+        <table id="data2" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Image</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(image|length) %}
+                <tr>
+                    <td>{{ name[i][0] }}</td>
+                    <td>{{ image[i][0] }}</td>
+                    <td><button type="submit" class="btn btn-success" name="sname" value="{{ name[i][0] }}">Launch</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+{% endblock %}
