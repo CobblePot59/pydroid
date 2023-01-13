@@ -22,33 +22,43 @@ if not isAdmin():
 
 
 sdkenv = str(Path.home()/'sdk-env')
-download = str(Path.home()/'Downloads')
+download = 'tmp'
+
 if platform.system() == 'Darwin':
+    # PLATFORM
     pt = 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip'
+    # CMDLINE-TOOLS
     pkg = re.findall(r"commandlinetools-mac-[\d]{7}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
     tools = 'https://dl.google.com/android/repository/'+pkg
+    # HYPERVISOR
     r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
     pkg = r.get('assets')[-1].get('browser_download_url')
     haxm = pkg.replace('windows', 'macosx')
     _os = 'Darwin'
 elif platform.system() == 'Linux':
+    # PLATFORM
     pt = 'https://dl.google.com/android/repository/platform-tools-latest-linux.zip'
+    # CMDLINE-TOOLS
     pkg = re.findall(r"commandlinetools-linux-[\d]{7}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
     tools = 'https://dl.google.com/android/repository/'+pkg
     _os = 'Linux'
 elif platform.system() == 'Windows':
+    # PLATFORM
     pt = 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip'
+    # CMDLINE-TOOLS
     pkg = re.findall(r"commandlinetools-win-[\d]{7}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
     tools = 'https://dl.google.com/android/repository/'+pkg
+    # HYPERVISOR
+    hvs = 0
+    hyperv = subprocess.check_output('cmd /c dism.exe /online /Get-Featureinfo /FeatureName:Microsoft-Hyper-V', encoding="437")
+    proc = platform.processor()
+
     r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
     haxm = r.get('assets')[-1].get('browser_download_url')
     r2 = requests.get('https://api.github.com/repos/google/android-emulator-hypervisor-driver-for-amd-processors/releases/latest').json()
     gvm = r2.get('assets')[-1].get('browser_download_url')
     _os = 'Windows'
-    proc = platform.processor()
-    hyperv = subprocess.check_output('cmd /c dism.exe /online /Get-Featureinfo /FeatureName:Microsoft-Hyper-V', encoding="437")
-    hvs = 0
-
+        
 
 def downloadSDK():
     from zipfile import ZipFile
@@ -62,6 +72,7 @@ def downloadSDK():
         if _os == 'Darwin':
             os.makedirs(sdkenv+'/haxm')
             wget.download(haxm, download+'/haxm.zip')
+            open(download+'/haxm.zip', 'wb').write(requests.get(haxm).content)
             zf = ZipFile(download+'/haxm.zip')
             zf.extractall(sdkenv+'/haxm')
             zf.close()
