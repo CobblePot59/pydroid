@@ -73,8 +73,8 @@ def cemulator():
         con.close()
         subprocess.run('echo no | avdmanager create avd -n '+str(name)+' -k "'+str(image)+'"', shell=True)
         print('\n')
-        # with open(str(Path.home())+'/.android/avd/'+name+'.avd/config.ini', mode='a') as econfig:
-        #     econfig.write('hw.keyboard=yes')
+        with open(str(Path.home())+'/Android/sdk-home/.android/avd/'+str(name)+'.avd/config.ini', mode='a') as econfig:
+            econfig.write('hw.keyboard=yes')
         message = 'Your emulator has been created'
     return render_template('emulator/createEmulator.html', image=image, message=message)
 
