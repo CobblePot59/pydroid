@@ -21,7 +21,8 @@ if not isAdmin():
     print(colored('Launch this app with elevated priviledges', 'red'))
 
 
-sdkenv = str(Path.home()/'sdk-env')
+sdkenv = str(Path.home()/'Android/sdk-env')
+sdkhome = str(Path.home()/'Android/sdk-home')
 download = 'tmp'
 
 if platform.system() == 'Darwin':
@@ -64,6 +65,9 @@ def downloadSDK():
     from zipfile import ZipFile
     import wget
     import shutil
+
+    if Path(sdkhome).exists() is False:
+         os.makedirs(sdkhome)
 
     if Path(sdkenv).exists() is False:
         print(colored('Please wait, sdk-env downloading...', 'yellow'))
@@ -161,9 +165,10 @@ def installHypervisor():
 
 
 def installEnvironment():
-    os.environ['ANDROID_AVD_HOME'] = str(Path.home()/'.android')
+    
     os.environ['ANDROID_SDK_ROOT'] = sdkenv
-    # os.environ['ANDROID_HOME'] = sdkenv
+    os.environ['ANDROID_SDK_HOME'] = sdkhome
+
     if _os == 'Darwin' or _os == 'Linux':
         os.environ['PATH'] = os.environ['PATH']+':{_}/emulator:{_}/emulator/bin64:{_}/platform-tools:{_}/cmdline-tools/latest/bin'.format(_=sdkenv)
     elif _os == 'Windows':
@@ -174,9 +179,10 @@ def installEnvironment():
 def updateSDK():
     import webbrowser
 
-    os.makedirs(str(Path.home()/'.android/avd'), exist_ok=True)
-    with open(str(Path.home()/'.android/repositories.cfg'), mode='a'):
+    os.makedirs(str(sdkhome)+'/.android/avd', exist_ok=True)
+    with open(str(sdkhome)+'/.android/repositories.cfg', mode='a'):
         pass
+
     if _os == 'Darwin' or _os == 'Linux':
         for folders, subfolders, files in os.walk(sdkenv):
             for _file in files:
