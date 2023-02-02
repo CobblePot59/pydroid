@@ -107,18 +107,14 @@ INSERT INTO sdk VALUES
 (97,'10','system-images;android-29;google_apis;x86_64','Google APIs Intel x86 Atom_64 System Image',0),
 (98,'10','system-images;android-29;google_apis_playstore;x86','Google Play Intel x86 Atom System Image',0),
 (99,'10','system-images;android-29;google_apis_playstore;x86_64','Google Play Intel x86 Atom_64 System Image',0),
-(100,'11','system-images;android-30;google_apis;x86','Google APIs Intel x86 Atom System Image',0),
-(101,'11','system-images;android-30;google_apis;x86_64','Google APIs Intel x86 Atom_64 System Image',0),
-(102,'11','system-images;android-30;google_apis_playstore;x86','Google Play Intel x86 Atom System Image',0),
-(103,'11','system-images;android-30;google_apis_playstore;x86_64','Google Play Intel x86 Atom_64 System Image',0);
-(100,'11','system-images;android-30;google_apis;x86','Google APIs Intel x86 Atom System Image',0),
-(101,'11','system-images;android-30;google_apis;x86_64','Google APIs Intel x86 Atom_64 System Image',0),
-(102,'11','system-images;android-30;google_apis_playstore;x86','Google Play Intel x86 Atom System Image',0),
-(103,'11','system-images;android-30;google_apis_playstore;x86_64','Google Play Intel x86 Atom_64 System Image',0);
-(104,'12','system-images;android-31;google_apis;x86','Google APIs Intel x86 Atom System Image',0),
-(105,'12','system-images;android-31;google_apis;x86_64','Google APIs Intel x86 Atom_64 System Image',0),
-(106,'12','system-images;android-31;google_apis_playstore;x86','Google Play Intel x86 Atom System Image',0),
-(107,'12','system-images;android-31;google_apis_playstore;x86_64','Google Play Intel x86 Atom_64 System Image',0);
+(100,'11','system-images;android-30;default;x86','Intel x86 Atom System Image',0),
+(101,'11','system-images;android-30;default;x86_64','Intel x86 Atom_64 System Image',0),
+(102,'11','system-images;android-30;google_apis;x86','Google APIs Intel x86 Atom System Image',0),
+(103,'11','system-images;android-30;google_apis;x86_64','Google APIs Intel x86 Atom_64 System Image',0),
+(104,'11','system-images;android-30;google_apis_playstore;x86','Google Play Intel x86 Atom System Image',0),
+(105,'11','system-images;android-30;google_apis_playstore;x86_64','Google Play Intel x86 Atom_64 System Image',0);
+(106,'12','system-images;android-31;default;x86','Intel x86 Atom System Image',0),
+(107,'12','system-images;android-31;default;x86_64','Intel x86 Atom_64 System Image',0),
 (108,'12','system-images;android-31;google_apis;x86','Google APIs Intel x86 Atom System Image',0),
 (109,'12','system-images;android-31;google_apis;x86_64','Google APIs Intel x86 Atom_64 System Image',0),
 (110,'12','system-images;android-31;google_apis_playstore;x86','Google Play Intel x86 Atom System Image',0),
