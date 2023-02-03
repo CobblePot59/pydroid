@@ -168,11 +168,19 @@ def installEnvironment():
     
     os.environ['ANDROID_SDK_ROOT'] = sdkenv
     os.environ['ANDROID_SDK_HOME'] = sdkhome
+    spath = os.environ['PATH']
 
     if _os == 'Darwin' or _os == 'Linux':
-        os.environ['PATH'] = os.environ['PATH']+':{_}/emulator:{_}/emulator/bin64:{_}/platform-tools:{_}/cmdline-tools/latest/bin'.format(_=sdkenv)
+        upath = ':{_}/emulator:{_}/emulator/bin64:{_}/platform-tools:{_}/cmdline-tools/latest/bin'.format(_=sdkenv)
+        if not upath in os.environ['PATH']:
+            os.environ['PATH'] = spath+upath
+            subprocess.run('echo export PATH='+spath+upath+' >> /etc/profile', shell=True)
+            subprocess.run('source /etc/profile', shell=True)
     elif _os == 'Windows':
-        os.environ['PATH'] = os.environ['PATH']+';{_}\\emulator;{_}\\emulator\\bin64;{_}\\platform-tools;{_}\\cmdline-tools\\latest\\bin'.format(_=sdkenv)
+        wpath = '{_}\\emulator;{_}\\emulator\\bin64;{_}\\platform-tools;{_}\\cmdline-tools\\latest\\bin'.format(_=sdkenv)
+        if not wpath in os.environ['PATH']:
+            os.environ['PATH'] = spath+wpath
+            subprocess.run('setx PATH "'+spath+wpath+'" /m', shell=True)
     print(colored('Your environement variable has been modified', 'green'))
 
 
