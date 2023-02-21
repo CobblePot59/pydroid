@@ -174,7 +174,7 @@ def installEnvironment():
         upath = ':{_}/emulator:{_}/emulator/bin64:{_}/platform-tools:{_}/cmdline-tools/latest/bin'.format(_=sdkenv)
         if not upath in os.environ['PATH']:
             os.environ['PATH'] = spath+upath
-            subprocess.run('echo export PATH='+spath+upath+' >> /etc/profile', shell=True)
+            subprocess.run('echo PATH="'+spath+upath+'" >> /etc/profile', shell=True)
             subprocess.run('source /etc/profile', shell=True)
     elif _os == 'Windows':
         wpath = '{_}\\emulator;{_}\\emulator\\bin64;{_}\\platform-tools;{_}\\cmdline-tools\\latest\\bin'.format(_=sdkenv)
