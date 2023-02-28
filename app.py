@@ -19,6 +19,7 @@ def isAdmin():
 
 if not isAdmin():
     print(colored('Launch this app with elevated priviledges', 'red'))
+    exit()
 
 
 sdkenv = str(Path.home()/'Android/sdk-env')
