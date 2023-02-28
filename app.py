@@ -143,7 +143,7 @@ def installHypervisor():
     elif _os == 'Windows':
         if Path(sdkenv+'/haxm').exists() is True:
             try:
-                cmd = subprocess.check_output('cmd /c '+sdkenv+'/haxm/silent_install.bat -v', shell=True)
+                cmd = subprocess.check_output('cmd /c '+sdkenv+'/haxm/silent_install.bat -v')
                 print(colored('haxm is installed', 'green'))
             except subprocess.CalledProcessError:
                 print(colored('haxm is not installed, this step will take a little time...', 'yellow'))
@@ -151,7 +151,7 @@ def installHypervisor():
                 print(colored('haxm is now installed', 'green'))
         elif Path(sdkenv+'/gvm').exists() is True:
             try:
-                cmd = subprocess.check_output('cmd /c '+sdkenv+'/gvm/silent_install.bat -v', shell=True)
+                cmd = subprocess.check_output('cmd /c '+sdkenv+'/gvm/silent_install.bat -v')
                 print(colored('gvm is installed', 'green'))
             except subprocess.CalledProcessError:
                 print(colored('gvm is not installed, this step will take a little time...', 'yellow'))
