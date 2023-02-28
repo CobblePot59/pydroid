@@ -117,6 +117,7 @@ def downloadSDK():
         _build = sorted(re.findall(r'build-tools;(.*?)[\s\n]', sdklist), reverse=True)[0]
         subprocess.run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --install "build-tools;{_build}"', shell=True)
         # PLATFORM-TOOLS
+        os.makedirs(sdkenv+'/platforms')
         subprocess.run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"', shell=True)  
 
     else:
