@@ -69,6 +69,8 @@ def downloadSDK():
     if Path(sdkhome).exists() is False:
          os.makedirs(sdkhome)
 
+    global _build
+            
     if Path(sdkenv).exists() is False:
         print(colored('Please wait, sdk-env downloading...', 'yellow'))
         os.makedirs(sdkenv)
@@ -113,7 +115,6 @@ def downloadSDK():
         print(colored('\nsdk-env files is now downloaded', 'green'))
         # BUILD-TOOLS
         sdklist = subprocess.check_output(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', shell=True, encoding="437")
-        global _build
         _build = sorted(re.findall(r'build-tools;(.*?)[\s\n]', sdklist), reverse=True)[0]
         subprocess.run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --install "build-tools;{_build}"', shell=True)
         # PLATFORM-TOOLS
@@ -122,7 +123,6 @@ def downloadSDK():
 
     else:
         sdklist = subprocess.check_output(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', shell=True, encoding="437")
-        global _build
         _build = sorted(re.findall(r'build-tools;(.*?)[\s\n]', sdklist), reverse=True)[0]
         print(colored('sdk-env files is already present', 'green'))
 
