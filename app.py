@@ -121,6 +121,9 @@ def downloadSDK():
         subprocess.run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"', shell=True)  
 
     else:
+        sdklist = subprocess.check_output(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', shell=True, encoding="437")
+        global _build
+        _build = sorted(re.findall(r'build-tools;(.*?)[\s\n]', sdklist), reverse=True)[0]
         print(colored('sdk-env files is already present', 'green'))
 
 
