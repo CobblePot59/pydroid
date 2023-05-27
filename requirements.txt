@@ -1,4 +1,5 @@
 flask
+flask_sqlalchemy 
 wget
 termcolor
 requests

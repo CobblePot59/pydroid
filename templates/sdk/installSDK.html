@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+
 {% include 'navbar.html' %}
+
 {% block content %}
     <form method="POST" action="/installSDK">
         <table id="data" class="table table-striped" style="width:100%">
@@ -12,13 +14,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(image|length) %}
-                {% if 0 in installed[i] %}
+                {% for i in range(1,sdk|length) %}
+                {% if sdk[i].installed == 0 %}
                 <tr>
-                    <td>{{ version[i][0] }}</td>
-                    <td>{{ image[i][0] }}</td>
-                    <td>{{ description[i][0] }}</td>
-                    <td><input type="checkbox" name="checkbox" value={{i}}></td>
+                    <td>{{ sdk[i].version }}</td>
+                    <td>{{ sdk[i].image }}</td>
+                    <td>{{ sdk[i].description }}</td>
+                    <td><input type="checkbox" name="checkbox" value={{i+1}}></td>
                 </tr>
                 {% endif %}
                 {% endfor %}

@@ -11,9 +11,9 @@
             <div class="col-xs-2">
               <label for="image">Image: </label>
               <select class="form-select" aria-label="Default select example" id="image" name="image" >
-                {% for i in range(image|length) %}
-                <option value="{{ image[i][0] }}">{{ image[i][0] }}</option>
-                {% endfor %}                                              
+                {% for i in range(installed_sdk|length) %}
+                <option value="{{ installed_sdk[i].image }}">{{ installed_sdk[i].image }}</option>
+                {% endfor %}
             </select>
             </div>
             <div class="col-xs-2">

@@ -11,11 +11,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(image|length) %}
+                {% for i in range(emulator|length) %}
                 <tr>
-                    <td>{{ name[i][0] }}</td>
-                    <td>{{ image[i][0] }}</td>
-                    <td><button type="submit" class="btn btn-success" name="sname" value="{{ name[i][0] }}">Launch</button></td>
+                    <td>{{ emulator[i].name }}</td>
+                    <td>{{ emulator[i].image }}</td>
+                    <td><button type="submit" class="btn btn-success" name="sname" value="{{ emulator[i].name }}">Launch</button></td>
                 </tr>
                 {% endfor %}
             </tbody>
