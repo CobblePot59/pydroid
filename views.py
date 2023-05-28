@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash
 from app import app, db
-from models import *
+from models import Sdk, Emulator
 from pathlib import Path
 import subprocess
 
