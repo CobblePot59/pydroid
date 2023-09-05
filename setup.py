@@ -34,7 +34,7 @@ download = 'tmp'
 
 if platform.system() == 'Darwin':
     # CMDLINE-TOOLS
-    pkg = re.findall(r"commandlinetools-mac-[\d]{7}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
+    pkg = re.findall(r"commandlinetools-mac-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
     tools = 'https://dl.google.com/android/repository/'+pkg
     # HYPERVISOR
     r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
@@ -43,7 +43,7 @@ if platform.system() == 'Darwin':
     _os = 'Darwin'
 elif platform.system() == 'Linux':
     # CMDLINE-TOOLS
-    pkg = re.findall(r"commandlinetools-linux-[\d]{7}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
+    pkg = re.findall(r"commandlinetools-linux-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
     tools = 'https://dl.google.com/android/repository/'+pkg
     _os = 'Linux'
 elif platform.system() == 'Windows':
