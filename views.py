@@ -20,7 +20,7 @@ def isdk():
             sdk.installed = 1
             db.session.commit()
             my_image = sdk.image
-            subprocess.run('sdkmanager "'+row[0]+'"', shell=True)
+            subprocess.run('sdkmanager "'+my_image+'"', shell=True)
         flash('Your selected sdk has been installed', 'success')
         return redirect(url_for('isdk'))
     return render_template('sdk/installSDK.html', sdk=sdk)
@@ -36,7 +36,7 @@ def usdk():
             sdk.installed = 0
             db.session.commit()
             my_image = sdk.image
-            subprocess.run('sdkmanager --uninstall "'+row[0]+'"', shell=True)
+            subprocess.run('sdkmanager --uninstall "'+my_image+'"', shell=True)
         flash('Your selected sdk has been removed', 'danger')
         return redirect(url_for('usdk'))
     return render_template('sdk/uninstallSDK.html', sdk=sdk)
