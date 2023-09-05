@@ -37,7 +37,8 @@ if platform.system() == 'Darwin':
     pkg = re.findall(r"commandlinetools-mac-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
     tools = 'https://dl.google.com/android/repository/'+pkg
     # HYPERVISOR
-    r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
+    # r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
+    r = requests.get('https://api.github.com/repos/intel/haxm/releases/31461850').json()
     pkg = r.get('assets')[-1].get('browser_download_url')
     haxm = pkg.replace('windows', 'macosx')
     _os = 'Darwin'
@@ -55,7 +56,8 @@ elif platform.system() == 'Windows':
     hyperv = subprocess.check_output('cmd /c dism.exe /online /Get-Featureinfo /FeatureName:Microsoft-Hyper-V', encoding="437")
     proc = platform.processor()
 
-    r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
+    # r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
+    r = requests.get('https://api.github.com/repos/intel/haxm/releases/31461850').json()
     haxm = r.get('assets')[-1].get('browser_download_url')
     r2 = requests.get('https://api.github.com/repos/google/android-emulator-hypervisor-driver-for-amd-processors/releases/latest').json()
     gvm = r2.get('assets')[-1].get('browser_download_url')
