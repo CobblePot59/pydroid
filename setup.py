@@ -48,7 +48,7 @@ elif platform.system() == 'Linux':
     _os = 'Linux'
 elif platform.system() == 'Windows':
     # CMDLINE-TOOLS
-    pkg = re.findall(r"commandlinetools-win-[\d]{7}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
+    pkg = re.findall(r"commandlinetools-win-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
     tools = 'https://dl.google.com/android/repository/'+pkg
     # HYPERVISOR
     hvs = 0
