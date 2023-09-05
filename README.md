@@ -19,7 +19,7 @@ python3 -m pip install -r requirements.txt
 ```
 4) Run as administrator
 ```
-python3 main.py
+python3 app.py
 ```
 
 ## Install SDK
