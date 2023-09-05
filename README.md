@@ -2,7 +2,7 @@
 Manage your sdks and emulators in a light and simplified way using a webui.
 
 ## Prerequisites
-Install java runtime environment [(https://adoptium.net/temurin/releases/?version=11)](https://adoptium.net/temurin/releases/?version=17)
+Install java runtime environment [(https://adoptium.net/temurin/releases/?version=17)](https://adoptium.net/temurin/releases/?version=17)
 
 ## Installation / Configuration
 1) Download this project.
