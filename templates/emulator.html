@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% include 'navbar.html' %}
+{% block content %}
+<script src="static/js/emulator.js"></script>
+
+<table id="data2" class="table table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Image</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in range(emulator|length) %}
+            <tr>
+                <td>{{ emulator[i].name }}</td>
+                <td>{{ emulator[i].image }}</td>
+                <td>
+                    <button type="button" class="btn btn-success" onclick="startEmulator('{{ emulator[i].name }}')">Launch</button>
+                    <button type="button" class="btn btn-danger" onclick="removeEmulator('{{ emulator[i].name }}')">Remove</button>
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>
+                <form method="POST" action="/createEmulator" id="createEmulatorForm">
+                    <input class="form-control" id="name" name="name" type="text" placeholder="Name">
+                </td>
+                <td>
+                    <select class="form-select" aria-label="Default select example" id="image" name="image">
+                        {% for i in range(installed_sdk|length) %}
+                            <option value="{{ installed_sdk[i].image }}">{{ installed_sdk[i].image }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-success">Create</button>
+                </td>
+                </form>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
