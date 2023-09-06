@@ -25,8 +25,5 @@ python3 app.py
 ## Install SDK
 ![alt text](https://raw.githubusercontent.com/CobblePot59/pydroid/main/pictures/installSDK.PNG)
 
-## Create an emulator
-![alt text](https://raw.githubusercontent.com/CobblePot59/pydroid/main/pictures/createEmulator.PNG)
-
 ## Start emulator
 ![alt text](https://raw.githubusercontent.com/CobblePot59/pydroid/main/pictures/startEmulator.PNG)
