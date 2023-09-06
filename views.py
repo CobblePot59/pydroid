@@ -47,9 +47,14 @@ def usdk():
     return render_template('sdk/uninstallSDK.html', sdk=sdk)
 
 
-@app.route('/createEmulator', methods=['GET', 'POST'])
-def cemulator():
+@app.route('/emulator', methods=['GET', 'POST'])
+def emulator():
     installed_sdk = Sdk.query.filter_by(installed = 1).all()
+    emulator = Emulator.query.all()
+    return render_template('emulator.html', installed_sdk=installed_sdk, emulator=emulator)
+
+@app.route('/createEmulator', methods=['POST'])
+def cemulator():
     if request.method == 'POST':
         name = request.form['name']
         image = request.form.get('image')
@@ -60,31 +65,23 @@ def cemulator():
         print('\n')
         with open(str(Path.home())+'/Android/sdk-home/.android/avd/'+str(name)+'.avd/config.ini', mode='a') as econfig:
             econfig.write('hw.keyboard=yes')
-        flash('Your emulator has been created', 'success')
-        return redirect(url_for('cemulator'))
-    return render_template('emulator/createEmulator.html', installed_sdk=installed_sdk)
+        return redirect(url_for('emulator'))
 
 
-@app.route('/removeEmulator', methods=['GET', 'POST'])
+@app.route('/removeEmulator', methods=['POST'])
 def remulator():
-    emulator = Emulator.query.all()
     if request.method == 'POST':
         sname = request.form['sname']
         Emulator.query.filter_by(name=sname).delete()
         db.session.commit()
         subprocess.run('avdmanager delete avd -n '+str(sname), shell=True)
-        flash('Your emulator has been removed', 'danger')
-        return redirect(url_for('remulator'))
-    return render_template('emulator/removeEmulator.html', emulator=emulator)
+        return redirect(url_for('emulator'))
 
 
-@app.route('/startEmulator', methods=['GET', 'POST'])
+@app.route('/startEmulator', methods=['POST'])
 def semulator():
-    emulator = Emulator.query.all()
     if request.method == 'POST':
         sname = request.form['sname']
         background_thread = threading.Thread(target=run_background_command, args=(f'emulator -writable-system -avd "{sname}" -no-snapshot-load',))
         background_thread.start()
-        flash('Your emulator has been started', 'success')
-        return redirect(url_for('semulator'))
-    return render_template('emulator/startEmulator.html', emulator=emulator)
+        return redirect(url_for('emulator'))
