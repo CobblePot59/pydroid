@@ -16,10 +16,12 @@ def isAdmin():
         is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
     return is_admin
 
+
 def checkIsAdmin():
     if not isAdmin():
         print(colored('Launch this app with elevated priviledges', 'red'))
         exit()
+
 
 def checkJDK():
     jdk = subprocess.run('java -version', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -31,37 +33,58 @@ def checkJDK():
 sdkenv = str(Path.home()/'Android/sdk-env')
 sdkhome = str(Path.home()/'Android/sdk-home')
 download = 'tmp'
+_os = platform.system()
 
-if platform.system() == 'Darwin':
-    # CMDLINE-TOOLS
-    pkg = re.findall(r"commandlinetools-mac-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
-    tools = 'https://dl.google.com/android/repository/'+pkg
-    # HYPERVISOR
-    # r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
-    r = requests.get('https://api.github.com/repos/intel/haxm/releases/31461850').json()
-    pkg = r.get('assets')[-1].get('browser_download_url')
-    haxm = pkg.replace('windows', 'macosx')
-    _os = 'Darwin'
-elif platform.system() == 'Linux':
-    # CMDLINE-TOOLS
-    pkg = re.findall(r"commandlinetools-linux-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
-    tools = 'https://dl.google.com/android/repository/'+pkg
-    _os = 'Linux'
-elif platform.system() == 'Windows':
-    # CMDLINE-TOOLS
-    pkg = re.findall(r"commandlinetools-win-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
-    tools = 'https://dl.google.com/android/repository/'+pkg
-    # HYPERVISOR
-    hvs = 0
-    hyperv = subprocess.check_output('cmd /c dism.exe /online /Get-Featureinfo /FeatureName:Microsoft-Hyper-V', encoding="437")
-    proc = platform.processor()
 
-    # r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
-    r = requests.get('https://api.github.com/repos/intel/haxm/releases/31461850').json()
-    haxm = r.get('assets')[-1].get('browser_download_url')
-    r2 = requests.get('https://api.github.com/repos/google/android-emulator-hypervisor-driver-for-amd-processors/releases/latest').json()
-    gvm = r2.get('assets')[-1].get('browser_download_url')
-    _os = 'Windows'
+def sdkInfo():
+    if platform.system() == 'Darwin':
+        # CMDLINE-TOOLS
+        pkg = re.findall(r"commandlinetools-mac-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
+        tools = 'https://dl.google.com/android/repository/'+pkg
+        # HYPERVISOR
+        # r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
+        r = requests.get('https://api.github.com/repos/intel/haxm/releases/31461850').json()
+        pkg = r.get('assets')[-1].get('browser_download_url')
+        haxm = pkg.replace('windows', 'macosx')
+    elif platform.system() == 'Linux':
+        # CMDLINE-TOOLS
+        pkg = re.findall(r"commandlinetools-linux-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
+        tools = 'https://dl.google.com/android/repository/'+pkg
+    elif platform.system() == 'Windows':
+        # CMDLINE-TOOLS
+        pkg = re.findall(r"commandlinetools-win-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
+        tools = 'https://dl.google.com/android/repository/'+pkg
+        # HYPERVISOR
+        hyperv = subprocess.check_output('cmd /c dism.exe /online /Get-Featureinfo /FeatureName:Microsoft-Hyper-V', encoding="437")
+
+        # r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
+        r = requests.get('https://api.github.com/repos/intel/haxm/releases/31461850').json()
+        haxm = r.get('assets')[-1].get('browser_download_url')
+        r2 = requests.get('https://api.github.com/repos/google/android-emulator-hypervisor-driver-for-amd-processors/releases/latest').json()
+        gvm = r2.get('assets')[-1].get('browser_download_url')
+
+    return {
+        'tools': tools,
+        'hyperv': hyperv,
+        'haxm': haxm,
+        'gvm': gvm
+    }
+
+
+def checkSDKenv():
+    sdkPaths = [sdkenv, f'{sdkenv}/cmdline-tools', f'{sdkenv}/build-tools', f'{sdkenv}/platform-tools']
+
+    if _os == 'Darwin':
+       sdkPaths.extend([f'{sdkenv}/haxm'])
+    
+    if _os == 'Windows':
+        sdkPaths.extend([f'{sdkenv}/hyperv', f'{sdkenv}/haxm', f'{sdkenv}/gvm'])
+
+    for sdkPath in sdkPaths:
+        if not os.path.exists(sdkPath):
+            return False
+
+    return True
 
 
 def downloadSDK():
@@ -72,14 +95,20 @@ def downloadSDK():
     if Path(sdkhome).exists() is False:
          os.makedirs(sdkhome)
 
+    _sdkInfo = sdkInfo()
+    tools = _sdkInfo['tools']
+    hyperv = _sdkInfo['hyperv']
+    haxm = _sdkInfo['haxm']
+    gvm = _sdkInfo['gvm']
+
     global _build
 
-    if Path(sdkenv).exists() is False:
+    if checkSDKenv() is False:
         print(colored('Please wait, sdk-env downloading...', 'yellow'))
-        os.makedirs(sdkenv)
+        os.makedirs(sdkenv, exist_ok=True)
         # HYPERVISOR
         if _os == 'Darwin':
-            os.makedirs(sdkenv+'/haxm')
+            os.makedirs(sdkenv+'/haxm', exist_ok=True)
             wget.download(haxm, download+'/haxm.zip')
             open(download+'/haxm.zip', 'wb').write(requests.get(haxm).content)
             zf = ZipFile(download+'/haxm.zip')
@@ -87,42 +116,43 @@ def downloadSDK():
             zf.close()
             os.remove(download+'/haxm.zip')
         elif _os == 'Windows':
-            global hvs
             if 'Enabled' in hyperv or 'Activé' in hyperv:
-                hvs = 1
+                os.makedirs(sdkenv+'/hyperv', exist_ok=True)
             else:
-                if 'AMD' in proc:
-                    os.makedirs(sdkenv+'/gvm')
+                print(platform.processor())
+                if 'AMD' in platform.processor():
+                    os.makedirs(sdkenv+'/gvm', exist_ok=True)
                     wget.download(gvm, download+'/gvm.zip')
                     zf = ZipFile(download+'/gvm.zip')
                     zf.extractall(sdkenv+'/gvm')
                     zf.close()
                     os.remove(download+'/gvm.zip')
                 else:
-                    os.makedirs(sdkenv+'/haxm')
+                    os.makedirs(sdkenv+'/haxm', exist_ok=True)
                     wget.download(haxm, download+'/haxm.zip')
                     zf = ZipFile(download+'/haxm.zip')
                     zf.extractall(sdkenv+'/haxm')
                     zf.close()
                     os.remove(download+'/haxm.zip')
         # CMDLINE-TOOLS
-        os.makedirs(sdkenv+'/cmdline-tools')
+        os.makedirs(sdkenv+'/cmdline-tools', exist_ok=True)
         wget.download(tools, download+'/tools.zip')
         zf = ZipFile(download+'/tools.zip')
         zf.extractall(sdkenv+'/cmdline-tools')
         zf.close()
         os.remove(download+'/tools.zip')
-        os.rename(sdkenv+'/cmdline-tools/cmdline-tools', sdkenv+'/cmdline-tools/latest')
+        shutil.copytree(sdkenv+'/cmdline-tools/cmdline-tools', sdkenv+'/cmdline-tools/latest', dirs_exist_ok=True)
+        shutil.rmtree(sdkenv+'/cmdline-tools/cmdline-tools')
         # LICENSES
-        shutil.copytree('licenses', sdkenv+'/licenses')
-        print(colored('\nsdk-env files is now downloaded', 'green'))
+        shutil.copytree('licenses', sdkenv+'/licenses', dirs_exist_ok=True)
         # BUILD-TOOLS
         sdklist = subprocess.check_output(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', shell=True, encoding="437")
         _build = sorted(re.findall(r'build-tools;(.*?)[\s\n]', sdklist), reverse=True)[0]
         subprocess.run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --install "build-tools;{_build}"', shell=True)
         # PLATFORM-TOOLS
-        os.makedirs(sdkenv+'/platforms')
-        subprocess.run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"', shell=True)  
+        os.makedirs(sdkenv+'/platforms', exist_ok=True)
+        subprocess.run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"', shell=True)
+        print(colored('\nsdk-env files is now downloaded', 'green'))
 
     else:
         sdklist = subprocess.check_output(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', shell=True, encoding="437")
@@ -148,7 +178,13 @@ def installHypervisor():
         else:
             print(colored('qemu is installed', 'green'))
     elif _os == 'Windows':
-        if Path(sdkenv+'/haxm').exists() is True:
+        if Path(sdkenv+'/hyperv').exists() is True:
+            hvp = subprocess.check_output('cmd /c dism.exe /online /Get-Featureinfo /FeatureName:HypervisorPlatform', encoding="437")
+            if 'Disabled' in hvp or 'Désactivé' in hvp:
+                print(colored('HypervisorPlatform is not installed, this step will take a little time...', 'yellow'))
+                subprocess.run('cmd /c dism.exe /online /Enable-Feature /FeatureName:HypervisorPlatform', shell=True)
+                print(colored('HypervisorPlatform is now installed', 'green'))
+        elif Path(sdkenv+'/haxm').exists() is True:
             try:
                 cmd = subprocess.check_output('cmd /c '+sdkenv+'/haxm/silent_install.bat -v', encoding="437")
                 print(colored('haxm is installed', 'green'))
@@ -164,12 +200,6 @@ def installHypervisor():
                 print(colored('gvm is not installed, this step will take a little time...', 'yellow'))
                 subprocess.run('cmd /c '+sdkenv+'/gvm/silent_install.bat', shell=True)
                 print(colored('gvm is now installed', 'green'))
-        elif hvs == 1:
-            hvp = subprocess.check_output('cmd /c dism.exe /online /Get-Featureinfo /FeatureName:HypervisorPlatform', encoding="437")
-            if 'Disabled' in hvp or 'Désactivé' in hvp:
-                print(colored('HypervisorPlatform is not installed, this step will take a little time...', 'yellow'))
-                subprocess.run('cmd /c dism.exe /online /Enable-Feature /FeatureName:HypervisorPlatform', shell=True)
-                print(colored('HypervisorPlatform is now installed', 'green'))
 
 
 def installEnvironment():
@@ -184,6 +214,7 @@ def installEnvironment():
             os.environ['PATH'] = spath+upath
             subprocess.run('echo \'PATH="'+spath+upath+'"\' >> /etc/profile', shell=True)
             subprocess.run('source /etc/profile', shell=True)
+            print(colored('Your environement variable has been modified', 'green'))
     elif _os == 'Windows':
         import winreg
 
@@ -191,13 +222,11 @@ def installEnvironment():
         wpath = ';{_}\\emulator;{_}\\emulator\\bin64;{_}\\platform-tools;{_}\\build-tools\\{_build};{_}\\cmdline-tools\\latest\\bin'.format(_=sdkenv, _build=_build)
         if not wpath in os.environ['PATH']:
             os.environ['PATH'] = spath+wpath
-            subprocess.run('setx PATH "'+key+wpath+'"', shell=True)
-    print(colored('Your environement variable has been modified', 'green'))
+            subprocess.run('setx PATH "'+key+wpath+'"', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(colored('Your environement variable has been modified', 'green'))
 
 
 def updateSDK():
-    import webbrowser
-
     os.makedirs(str(sdkhome)+'/.android/avd', exist_ok=True)
     with open(str(sdkhome)+'/.android/repositories.cfg', mode='a'):
         pass
@@ -216,5 +245,3 @@ def updateSDK():
         subprocess.run('sdkmanager emulator', shell=True)
     print(colored('sdk has been updated', 'green'))
     print(colored('\nYou can now download your image to build your emulator\n', 'green'))
-
-    webbrowser.open("http://localhost")

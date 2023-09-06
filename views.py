@@ -3,6 +3,11 @@ from app import app, db
 from models import Sdk, Emulator
 from pathlib import Path
 import subprocess
+import threading
+
+
+def run_background_command(command):
+    subprocess.Popen(command, shell=True)
 
 
 @app.route('/')
@@ -78,7 +83,8 @@ def semulator():
     emulator = Emulator.query.all()
     if request.method == 'POST':
         sname = request.form['sname']
-        subprocess.run('emulator -writable-system -avd '+str(sname)+' -no-snapshot-load', shell=True)
+        background_thread = threading.Thread(target=run_background_command, args=(f'emulator -writable-system -avd "{sname}" -no-snapshot-load',))
+        background_thread.start()
         flash('Your emulator has been started', 'success')
         return redirect(url_for('semulator'))
     return render_template('emulator/startEmulator.html', emulator=emulator)
