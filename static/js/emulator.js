@@ -13,3 +13,18 @@ $('#createEmulatorForm').submit(function(event) {
     $.post('/createEmulator', function(data) {
     });
 });
+
+function rootEmulator(name) {
+    $.post('/rootEmulator', { sname: name }, function(data) {
+    });
+}
+
+// function addCA(name) {
+//     $.post('/addCA', { sname: name }, function(data) {
+//     });
+// }
+
+// function addFrida(name) {
+//     $.post('/addFrida', { sname: name }, function(data) {
+//     });
+// }

@@ -1,5 +1,5 @@
 flask
-flask_sqlalchemy 
-wget
+flask_sqlalchemy
+dload
 termcolor
 requests

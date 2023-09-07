@@ -17,8 +17,11 @@
                 <td>{{ emulator[i].name }}</td>
                 <td>{{ emulator[i].image }}</td>
                 <td>
-                    <button type="button" class="btn btn-success" onclick="startEmulator('{{ emulator[i].name }}')">Launch</button>
-                    <button type="button" class="btn btn-danger" onclick="removeEmulator('{{ emulator[i].name }}')">Remove</button>
+                    <a href="#" onclick="startEmulator('{{ emulator[i].name }}')"><i class="bi bi-play" style="color: green;"></i></a>
+                    <a href="#" onclick="removeEmulator('{{ emulator[i].name }}')"><i class="bi bi-trash" style="color: red;"></i></a>
+                    <a href="#" onclick="rootEmulator('{{ emulator[i].name }}')"><img src="static/img/magisk.ico" alt="magisk" style="width: 1em; height: 1em;"></a>
+                    <!-- <a href="#" onclick="addCA('{{ emulator[i].name }}')"><img src="static/img/burp.ico" alt="burp" style="width: 1em; height: 1em;"></a>
+                    <a href="#" onclick="addFrida('{{ emulator[i].name }}')"><img src="static/img/frida.ico" alt="frida" style="width: 1em; height: 1em;"></a> -->
                 </td>
             </tr>
         {% endfor %}

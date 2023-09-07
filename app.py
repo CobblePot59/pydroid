@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import logging
-from setup import checkIsAdmin, checkJDK, sdkInfo, downloadSDK, installHypervisor, installEnvironment, updateSDK
+from setup import checkIsAdmin, checkJDK, sdkInfo, downloadSDK, installHypervisor, installEnvironment, updateSDK, rootAVD
 import webbrowser
 
 app = Flask(__name__)
@@ -21,5 +21,6 @@ if __name__ == '__main__':
     installHypervisor()
     installEnvironment()
     updateSDK()
+    rootAVD()
     webbrowser.open("http://localhost")
     app.run(host='0.0.0.0', port=80)

@@ -5,6 +5,7 @@ import platform
 import re
 import requests
 import subprocess
+import dload
 
 
 def isAdmin():
@@ -38,22 +39,16 @@ _os = platform.system()
 
 def sdkInfo():
     if platform.system() == 'Darwin':
-        # CMDLINE-TOOLS
-        pkg = re.findall(r"commandlinetools-mac-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
-        tools = 'https://dl.google.com/android/repository/'+pkg
+        url_os = 'mac'
         # HYPERVISOR
         # r = requests.get('https://api.github.com/repos/intel/haxm/releases/latest').json()
         r = requests.get('https://api.github.com/repos/intel/haxm/releases/31461850').json()
         pkg = r.get('assets')[-1].get('browser_download_url')
         haxm = pkg.replace('windows', 'macosx')
     elif platform.system() == 'Linux':
-        # CMDLINE-TOOLS
-        pkg = re.findall(r"commandlinetools-linux-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
-        tools = 'https://dl.google.com/android/repository/'+pkg
+        url_os = 'linux'
     elif platform.system() == 'Windows':
-        # CMDLINE-TOOLS
-        pkg = re.findall(r"commandlinetools-win-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
-        tools = 'https://dl.google.com/android/repository/'+pkg
+        url_os = 'win'
         # HYPERVISOR
         hyperv = subprocess.check_output('cmd /c dism.exe /online /Get-Featureinfo /FeatureName:Microsoft-Hyper-V', encoding="437")
 
@@ -62,6 +57,10 @@ def sdkInfo():
         haxm = r.get('assets')[-1].get('browser_download_url')
         r2 = requests.get('https://api.github.com/repos/google/android-emulator-hypervisor-driver-for-amd-processors/releases/latest').json()
         gvm = r2.get('assets')[-1].get('browser_download_url')
+
+        # CMDLINE-TOOLS
+        pkg = re.findall(r"commandlinetools-"+url_os+"-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
+        tools = 'https://dl.google.com/android/repository/'+pkg
 
     return {
         'tools': tools,
@@ -88,8 +87,6 @@ def checkSDKenv():
 
 
 def downloadSDK():
-    from zipfile import ZipFile
-    import wget
     import shutil
 
     if Path(sdkhome).exists() is False:
@@ -109,38 +106,20 @@ def downloadSDK():
         # HYPERVISOR
         if _os == 'Darwin':
             os.makedirs(sdkenv+'/haxm', exist_ok=True)
-            wget.download(haxm, download+'/haxm.zip')
-            open(download+'/haxm.zip', 'wb').write(requests.get(haxm).content)
-            zf = ZipFile(download+'/haxm.zip')
-            zf.extractall(sdkenv+'/haxm')
-            zf.close()
-            os.remove(download+'/haxm.zip')
+            dload.save_unzip(haxm, sdkenv+'/haxm', delete_after=True)
         elif _os == 'Windows':
             if 'Enabled' in hyperv or 'Activé' in hyperv:
                 os.makedirs(sdkenv+'/hyperv', exist_ok=True)
             else:
-                print(platform.processor())
                 if 'AMD' in platform.processor():
                     os.makedirs(sdkenv+'/gvm', exist_ok=True)
-                    wget.download(gvm, download+'/gvm.zip')
-                    zf = ZipFile(download+'/gvm.zip')
-                    zf.extractall(sdkenv+'/gvm')
-                    zf.close()
-                    os.remove(download+'/gvm.zip')
+                    dload.save_unzip(gvm, sdkenv+'/gvm', delete_after=True)
                 else:
                     os.makedirs(sdkenv+'/haxm', exist_ok=True)
-                    wget.download(haxm, download+'/haxm.zip')
-                    zf = ZipFile(download+'/haxm.zip')
-                    zf.extractall(sdkenv+'/haxm')
-                    zf.close()
-                    os.remove(download+'/haxm.zip')
+                    dload.save_unzip(haxm, sdkenv+'/haxm', delete_after=True)
         # CMDLINE-TOOLS
         os.makedirs(sdkenv+'/cmdline-tools', exist_ok=True)
-        wget.download(tools, download+'/tools.zip')
-        zf = ZipFile(download+'/tools.zip')
-        zf.extractall(sdkenv+'/cmdline-tools')
-        zf.close()
-        os.remove(download+'/tools.zip')
+        dload.save_unzip(tools, sdkenv+'/cmdline-tools', delete_after=True)
         shutil.copytree(sdkenv+'/cmdline-tools/cmdline-tools', sdkenv+'/cmdline-tools/latest', dirs_exist_ok=True)
         shutil.rmtree(sdkenv+'/cmdline-tools/cmdline-tools')
         # LICENSES
@@ -163,11 +142,11 @@ def downloadSDK():
 def installHypervisor():
     if _os == 'Darwin':
         try:
-            cmd = subprocess.check_output('bash '+sdkenv+'/haxm/silent_install.sh -v', shell=True)
+            cmd = subprocess.check_output(f'bash {sdkenv}/haxm/silent_install.sh -v', shell=True)
             print(colored('haxm is installed', 'green'))
         except subprocess.CalledProcessError:
             print(colored('haxm is not installed, this step will take a little time...', 'yellow'))
-            subprocess.run('bash '+sdkenv+'/haxm/silent_install.sh', shell=True)
+            subprocess.run(f'bash {sdkenv}/haxm/silent_install.sh', shell=True)
             print(colored('haxm is now installed', 'green'))
     elif _os == 'Linux':
         cmd = subprocess.run('dpkg -l | grep qemu-kvm', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -186,49 +165,55 @@ def installHypervisor():
                 print(colored('HypervisorPlatform is now installed', 'green'))
         elif Path(sdkenv+'/haxm').exists() is True:
             try:
-                cmd = subprocess.check_output('cmd /c '+sdkenv+'/haxm/silent_install.bat -v', encoding="437")
+                cmd = subprocess.check_output(f'cmd /c {sdkenv}/haxm/silent_install.bat -v', encoding="437")
                 print(colored('haxm is installed', 'green'))
             except subprocess.CalledProcessError:
                 print(colored('haxm is not installed, this step will take a little time...', 'yellow'))
-                subprocess.run('cmd /c '+sdkenv+'/haxm/silent_install.bat', shell=True)
+                subprocess.run(f'cmd /c {sdkenv}/haxm/silent_install.bat', shell=True)
                 print(colored('haxm is now installed', 'green'))
         elif Path(sdkenv+'/gvm').exists() is True:
             try:
-                cmd = subprocess.check_output('cmd /c '+sdkenv+'/gvm/silent_install.bat -v', encoding="437")
+                cmd = subprocess.check_output(f'cmd /c {sdkenv}/gvm/silent_install.bat -v', encoding="437")
                 print(colored('gvm is installed', 'green'))
             except subprocess.CalledProcessError:
                 print(colored('gvm is not installed, this step will take a little time...', 'yellow'))
-                subprocess.run('cmd /c '+sdkenv+'/gvm/silent_install.bat', shell=True)
+                subprocess.run(f'cmd /c {sdkenv}/gvm/silent_install.bat', shell=True)
                 print(colored('gvm is now installed', 'green'))
 
 
-def installEnvironment():
+def defEnvironment(variable, value1, value2):
+    current_value = os.environ.get(variable)
+    if current_value is None or value2 not in current_value:
+        os.environ[variable] = value1
+        if _os == 'Darwin' or _os == 'Linux':
+            subprocess.run(f'echo \'{variable}="{value2}"\' >> /etc/profile', shell=True)
+            subprocess.run('source /etc/profile', shell=True)
+        if _os == 'Windows':
+            subprocess.run(f'setx {variable} "{value2}"', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print(colored(f'{variable} environment variable has been modified', 'green'))
 
+
+def installEnvironment():
     os.environ['ANDROID_SDK_ROOT'] = sdkenv
     os.environ['ANDROID_SDK_HOME'] = sdkhome
-    spath = os.environ['PATH']
+    spath = os.environ['PATH']  
+    
+    defEnvironment('ANDROID_HOME', sdkenv, sdkenv)
 
     if _os == 'Darwin' or _os == 'Linux':
         upath = ':{_}/emulator:{_}/emulator/bin64:{_}/platform-tools:{_}/build-tools/{_build}:{_}/cmdline-tools/latest/bin'.format(_=sdkenv, _build=_build)
-        if not upath in os.environ['PATH']:
-            os.environ['PATH'] = spath+upath
-            subprocess.run('echo \'PATH="'+spath+upath+'"\' >> /etc/profile', shell=True)
-            subprocess.run('source /etc/profile', shell=True)
-            print(colored('Your environement variable has been modified', 'green'))
+        defEnvironment('PATH', spath+upath, spath+upath)
     elif _os == 'Windows':
         import winreg
 
         key = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment"), "Path")[0]
-        wpath = ';{_}\\emulator;{_}\\emulator\\bin64;{_}\\platform-tools;{_}\\build-tools\\{_build};{_}\\cmdline-tools\\latest\\bin'.format(_=sdkenv, _build=_build)
-        if not wpath in os.environ['PATH']:
-            os.environ['PATH'] = spath+wpath
-            subprocess.run('setx PATH "'+key+wpath+'"', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            print(colored('Your environement variable has been modified', 'green'))
+        wpath = ';{_}\\emulator;{_}\\emulator\\bin64;{_}\\platform-tools;{_}\\build-tools\\{_build};{_}\\cmdline-tools\\latest\\bin'.format(_=sdkenv, _build="34")
+        defEnvironment('PATH', spath+wpath, key+wpath)
 
 
 def updateSDK():
-    os.makedirs(str(sdkhome)+'/.android/avd', exist_ok=True)
-    with open(str(sdkhome)+'/.android/repositories.cfg', mode='a'):
+    os.makedirs(f'{sdkhome}/.android/avd', exist_ok=True)
+    with open(f'{sdkhome}/.android/repositories.cfg', mode='a'):
         pass
 
     if _os == 'Darwin' or _os == 'Linux':
@@ -236,12 +221,17 @@ def updateSDK():
             for _file in files:
                 fn, ext = os.path.splitext(_file)
                 if not ext:
-                    _type = subprocess.check_output('file '+folders+'/'+_file, shell=True)
+                    _type = subprocess.check_output(f'file {folders}/{_file}', shell=True)
                     if 'executable' in _type.decode():
-                        os.chmod(folders+'/'+_file, 0o744)
+                        os.chmod(f'{folders}/{_file}', 0o744)
     print(colored('sdk updating...', 'yellow'))
     subprocess.run('sdkmanager --update', shell=True)
     if Path(sdkenv+'/cmdline-tools/emulator').exists() is False:
         subprocess.run('sdkmanager emulator', shell=True)
     print(colored('sdk has been updated', 'green'))
     print(colored('\nYou can now download your image to build your emulator\n', 'green'))
+
+def rootAVD():
+    dload.git_clone('https://github.com/newbit1/rootAVD.git', clone_dir='./modules')
+    if _os == 'Darwin' or _os == 'Linux':
+        os.chmod('./modules/rootAVD-master/rootAVD.sh', 0o744)
