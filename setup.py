@@ -38,6 +38,8 @@ _os = platform.system()
 
 
 def sdkInfo():
+    hyperv = haxm = gvm = None
+
     if platform.system() == 'Darwin':
         url_os = 'mac'
         # HYPERVISOR
@@ -58,9 +60,9 @@ def sdkInfo():
         r2 = requests.get('https://api.github.com/repos/google/android-emulator-hypervisor-driver-for-amd-processors/releases/latest').json()
         gvm = r2.get('assets')[-1].get('browser_download_url')
 
-        # CMDLINE-TOOLS
-        pkg = re.findall(r"commandlinetools-"+url_os+"-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
-        tools = 'https://dl.google.com/android/repository/'+pkg
+    # CMDLINE-TOOLS
+    pkg = re.findall(r"commandlinetools-"+url_os+"-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
+    tools = 'https://dl.google.com/android/repository/'+pkg
 
     return {
         'tools': tools,
@@ -75,7 +77,7 @@ def checkSDKenv():
 
     if _os == 'Darwin':
        sdkPaths.extend([f'{sdkenv}/haxm'])
-    
+
     if _os == 'Windows':
         sdkPaths.extend([f'{sdkenv}/hyperv', f'{sdkenv}/haxm', f'{sdkenv}/gvm'])
 
@@ -122,6 +124,8 @@ def downloadSDK():
         dload.save_unzip(tools, sdkenv+'/cmdline-tools', delete_after=True)
         shutil.copytree(sdkenv+'/cmdline-tools/cmdline-tools', sdkenv+'/cmdline-tools/latest', dirs_exist_ok=True)
         shutil.rmtree(sdkenv+'/cmdline-tools/cmdline-tools')
+        if _os == 'Darwin' or _os == 'Linux':
+            os.chmod(os.path.join(f'{sdkenv}/cmdline-tools/latest/bin/', 'sdkmanager'), 0o744)
         # LICENSES
         shutil.copytree('licenses', sdkenv+'/licenses', dirs_exist_ok=True)
         # BUILD-TOOLS
@@ -196,8 +200,8 @@ def defEnvironment(variable, value1, value2):
 def installEnvironment():
     os.environ['ANDROID_SDK_ROOT'] = sdkenv
     os.environ['ANDROID_SDK_HOME'] = sdkhome
-    spath = os.environ['PATH']  
-    
+    spath = os.environ['PATH']
+
     defEnvironment('ANDROID_HOME', sdkenv, sdkenv)
 
     if _os == 'Darwin' or _os == 'Linux':
@@ -219,7 +223,7 @@ def updateSDK():
     if _os == 'Darwin' or _os == 'Linux':
         for folders, subfolders, files in os.walk(sdkenv):
             for _file in files:
-                fn, ext = os.path.splitext(_file)
+                filename, ext = os.path.splitext(_file)
                 if not ext:
                     _type = subprocess.check_output(f'file {folders}/{_file}', shell=True)
                     if 'executable' in _type.decode():
