@@ -1,5 +1,6 @@
 flask
 flask_sqlalchemy
+flask-toastr
 dload
 termcolor
 requests
