@@ -44,7 +44,7 @@ def uninstall_sdk():
             db.session.commit()
             my_image = sdk.image
             subprocess.run('sdkmanager --uninstall "'+my_image+'"', shell=True)
-        flash('Your selected sdk has been removed', 'danger')
+        flash('Your selected sdk has been removed', 'error')
         return redirect(url_for('uninstall_sdk'))
     return render_template('sdk/uninstallSDK.html', sdk=sdk)
 
