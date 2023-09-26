@@ -5,30 +5,26 @@
     <title>AVD MANAGER</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=,shrink-to-fit=no">
     <link rel="icon" href="/static/img/favicon.png" type="image/x-icon">
-    {% block headers %}{% endblock %}
+    
     <link rel="stylesheet" href="static/plugins/bootstrap/bootstrap-icons.css">
     <link rel="stylesheet" href="static/plugins/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="static/plugins/dataTables/dataTables.bootstrap5.css">
+    {{ toastr.include_toastr_css() }}
+    {% block headers %}{% endblock %}
+
+    <script src="static/plugins/jquery/jquery.js"></script>
+    <script src="static/plugins/jquery/jquery-ui.js"></script>
+    <script src="static/plugins/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="static/plugins/dataTables/jquery.dataTables.js"></script>
+    <script src="static/plugins/dataTables/dataTables.bootstrap5.js"></script>
+    {{ toastr.include_toastr_js() }}
+    <script src="static/js/index.js"></script>
+    {% block scripts %}{% endblock %}
   </head>
   <body>
-<div class="container">
-      {% for category, message in get_flashed_messages(with_categories=true) %}
-        <div class="alert alert-{{ category }} alert-dismissable" role="alert">
-          <button type="button" class="close" data-bs-dismiss="alert" aria-label="close">
-            <span aria-hidden="true">x</span>
-          </button>
-          {{ message }}
-        </div>
-      {% endfor %}
-      <br>
+    <div class="container">
       {% block content %}{% endblock %}
     </div>
-      <script src="static/plugins/jquery/jquery.js"></script>
-      <script src="static/plugins/jquery/jquery-ui.js"></script>
-      <script src="static/plugins/bootstrap/bootstrap.bundle.min.js"></script>
-      <script src="static/plugins/dataTables/jquery.dataTables.js"></script>
-      <script src="static/plugins/dataTables/dataTables.bootstrap5.js"></script>
-      <script src="static/js/index.js"></script>
-      {% block scripts %}{% endblock %}
+    {{ toastr.message() }}  
   </body>
 </html>
