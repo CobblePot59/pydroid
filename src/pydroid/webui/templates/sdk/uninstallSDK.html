@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Uninstall SDK{% endblock %}
+
+{% block content %}
+<div class="app-card card mb-3">
+  <div class="card-header pb-0">
+    {% include 'sdk/tabs.html' %}
+  </div>
+  <div class="card-body">
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+  <div>
+    <h1 class="h4 mb-1">Uninstall SDK Images</h1>
+    <div class="app-muted small">Select one or more system images to uninstall.</div>
+  </div>
+  <div class="sdk-actions">
+    <div class="input-group input-group-sm" style="min-width: 240px;">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input class="form-control" type="search" placeholder="Search images..." aria-label="Search images" data-sdk-search>
+    </div>
+    <div class="btn-group" role="group" aria-label="Selection helpers">
+      <button class="btn btn-outline-secondary btn-sm btn-icon" type="button" data-sdk-select-visible>
+        <i class="bi bi-check2-square"></i> Select visible
+      </button>
+      <button class="btn btn-outline-secondary btn-sm btn-icon" type="button" data-sdk-clear>
+        <i class="bi bi-x-circle"></i> Clear
+      </button>
+    </div>
+  </div>
+</div>
+
+<form method="POST" action="{{ url_for('uninstall_sdk') }}">
+  <div class="sdk-grid">
+    {% for s in sdk if s.installed == 1 %}
+      <label class="sdk-card app-card card" data-sdk-card data-sdk-text="{{ s.version }} {{ s.image }} {{ s.description }}">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="flex-grow-1" style="min-width:0;">
+              <div class="sdk-title text-truncate">{{ s.image }}</div>
+              <div class="sdk-subtitle">{{ s.version }}</div>
+            </div>
+            <input class="form-check-input sdk-check" type="checkbox" name="checkbox" value="{{ s.id }}" data-sdk-checkbox>
+          </div>
+          {% if s.description %}
+            <div class="app-muted small mt-2">{{ s.description }}</div>
+          {% endif %}
+          <div class="sdk-badges mt-3 d-flex gap-2 flex-wrap">
+            <span class="badge bg-success">Installed</span>
+          </div>
+        </div>
+      </label>
+    {% else %}
+      <div class="app-card card">
+        <div class="card-body">
+          <div class="fw-semibold">No installed SDK images found</div>
+          <div class="app-muted small">Install some images first, then come back here to uninstall them.</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="sdk-fab" role="region" aria-label="Selection actions">
+    <span class="badge bg-primary" aria-label="Selected count"><span data-sdk-selected>0</span> selected</span>
+    <button type="submit" class="btn btn-danger btn-sm btn-icon" name="submit" value="submit" data-sdk-submit disabled>
+      <i class="bi bi-trash-fill"></i> Uninstall
+    </button>
+  </div>
+</form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/sdk.js') }}"></script>
+{% endblock %}

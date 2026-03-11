@@ -1,0 +1,28 @@
+<nav class="navbar navbar-expand-lg sticky-top navbar-light" data-navbar-theme>
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('index') }}">AVD Manager</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% set sdk_active = request.path in [url_for('install_sdk'), url_for('uninstall_sdk')] %}
+        <li class="nav-item">
+          <a class="nav-link app-navlink {% if sdk_active %}active{% endif %}" href="{{ url_for('install_sdk') }}">SDK</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link app-navlink {% if request.path == url_for('get_emulator') %}active{% endif %}" href="{{ url_for('get_emulator') }}">Emulators</a>
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-outline-secondary btn-sm btn-icon" href="#" data-theme-toggle data-bs-toggle="tooltip" data-bs-placement="bottom" title="Theme">
+          <i class="bi bi-circle-half"></i>
+          <span class="d-none d-sm-inline">Theme</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>

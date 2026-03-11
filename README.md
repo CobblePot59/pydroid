@@ -19,11 +19,11 @@ python3 -m pip install -r requirements.txt
 ```
 4) Run as administrator
 ```
-python3 app.py
+python3 main.py
 ```
 
 ## Install SDK
-![alt text](https://raw.githubusercontent.com/CobblePot59/pydroid/main/pictures/installSDK.PNG)
+![Install SDK](.github/pictures/installSDK.PNG)
 
 ## Start emulator
-![alt text](https://raw.githubusercontent.com/CobblePot59/pydroid/main/pictures/startEmulator.PNG)
+![Start emulator](.github/pictures/startEmulator.PNG)

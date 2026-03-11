@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="app-hero p-4 p-md-5 mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-md-8">
+      <h1 class="h3 mb-2">Manage your AVDs in one place</h1>
+      <p class="app-muted mb-0">Install SDK system images and create emulators from the WebUI.</p>
+    </div>
+    <div class="col-md-4 text-center text-md-end">
+      <img src="{{ url_for('static', filename='img/AndroidPenguin.png') }}" class="img-fluid" style="max-height:120px" alt="Android">
+    </div>
+  </div>
+</section>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="app-card card h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-box-arrow-in-down"></i>
+          <h2 class="h6 mb-0">SDK</h2>
+        </div>
+        <p class="app-muted small mb-3">Install and uninstall SDK system images.</p>
+        <a class="btn app-cta btn-sm btn-icon" href="{{ url_for('install_sdk') }}">
+          <i class="bi bi-arrow-up-right"></i> Open
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="app-card card h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-phone"></i>
+          <h2 class="h6 mb-0">Emulators</h2>
+        </div>
+        <p class="app-muted small mb-3">Create, start, delete, and root your AVDs.</p>
+        <a class="btn app-cta btn-sm btn-icon" href="{{ url_for('get_emulator') }}">
+          <i class="bi bi-arrow-up-right"></i> Open
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

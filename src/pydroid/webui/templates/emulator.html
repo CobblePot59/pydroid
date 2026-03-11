@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+  <div>
+    <h1 class="h4 mb-1"><i class="bi bi-phone me-2"></i>Emulators</h1>
+    <div class="app-muted small">Create, start, delete, and root your AVDs.</div>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-5">
+    <div class="app-card card h-100">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="fw-semibold"><i class="bi bi-plus-lg me-2"></i>Create emulator</div>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('create_emulator') }}" class="row g-2 align-items-end">
+          <div class="col-12">
+            <label class="form-label" for="name">Name</label>
+            <input class="form-control" id="name" name="name" type="text" placeholder="e.g. pixel_api_34" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="image">System image</label>
+            <select class="form-select" id="image" name="image" {% if installed_sdk|length == 0 %}disabled{% endif %}>
+              {% for s in installed_sdk %}
+                <option value="{{ s.image }}">{{ s.image }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 d-grid">
+            <button type="submit" class="btn btn-success btn-icon" {% if installed_sdk|length == 0 %}disabled{% endif %}>
+              <i class="bi bi-plus-lg"></i> Create
+            </button>
+          </div>
+          {% if installed_sdk|length == 0 %}
+            <div class="col-12">
+              <div class="alert alert-warning mb-0">
+                No installed SDK images found. Go to <a href="{{ url_for('install_sdk') }}">SDK</a> and install at least one image.
+              </div>
+            </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="app-card card h-100">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="fw-semibold"><i class="bi bi-lightning-charge me-2"></i>Quick actions</div>
+        <span class="app-muted small">{{ emulator|length }} emulator(s)</span>
+      </div>
+      <div class="card-body">
+        {% if emulator|length == 0 %}
+          <div class="app-hero p-4">
+            <div class="fw-semibold mb-1">No emulators yet</div>
+            <div class="app-muted small">Create your first AVD using the form on the left.</div>
+          </div>
+        {% else %}
+          <div class="table-responsive">
+            <table id="emulatorsTable" class="table table-hover align-middle mb-0" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Image</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for e in emulator %}
+                  <tr>
+                    <td class="fw-semibold">{{ e.name }}</td>
+                    <td><code>{{ e.image }}</code></td>
+                    <td class="text-end">
+                      <span class="action-group">
+                        <a class="btn btn-outline-secondary btn-sm btn-icon" href="#" data-emulator-action="start" data-emulator-name="{{ e.name }}" data-bs-toggle="tooltip" title="Start">
+                          <i class="bi bi-play-fill"></i>
+                        </a>
+                        <a class="btn btn-outline-secondary btn-sm btn-icon" href="#" data-emulator-action="root" data-emulator-name="{{ e.name }}" data-bs-toggle="tooltip" title="Root">
+                          <i class="bi bi-shield-lock"></i>
+                        </a>
+                        <a class="btn btn-outline-secondary btn-sm btn-icon" href="#" data-emulator-action="remove" data-emulator-name="{{ e.name }}" data-bs-toggle="tooltip" title="Delete">
+                          <i class="bi bi-trash-fill"></i>
+                        </a>
+                      </span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/emulator.js') }}"></script>
+{% endblock %}

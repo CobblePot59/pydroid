@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr-FR">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}AVD Manager{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="{{ url_for('static', filename='img/AndroidPenguin.png') }}" type="image/png">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/bootstrap/bootstrap-icons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/bootstrap/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/dataTables/dataTables.bootstrap5.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/toastr/toastr.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    {% block headers %}{% endblock %}
+  </head>
+  <body>
+    <div class="app-shell">
+      {% include 'navbar.html' %}
+      <main class="app-main">
+        <div class="container py-4">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+      <footer class="app-footer py-3">
+        <div class="container">
+          <div class="app-footer-inner">
+            <a class="app-footer-textlink" href="https://github.com/CobblePot59/pydroid" target="_blank" rel="noreferrer">
+              <i class="bi bi-github"></i>
+              <span>pydroid by CobblePot59</span>
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='plugins/jquery/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/jquery/jquery-ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/dataTables/jquery.dataTables.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/dataTables/dataTables.bootstrap5.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/toastr/toastr.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    {% block scripts %}{% endblock %}
+
+    {{ toastr.message() }}
+  </body>
+</html>

@@ -1,6 +1,5 @@
 flask
 flask_sqlalchemy
 flask-toastr
-dload
-termcolor
+gitpython
 requests
