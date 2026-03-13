@@ -1,3 +1,4 @@
+from src.pydroid.webui import config
 from pathlib import Path
 from git import Repo
 import os
@@ -28,9 +29,11 @@ _COLORS = {
     'step':    '\033[36m',
 }
 
-def _log(level, msg):
-    print(f"{_COLORS.get(level, '')}{msg}\033[0m")
 
+def _log(level, msg):
+    if level == 'info' and not config.DEBUG:
+        return
+    print(f"{_COLORS.get(level, '')}{msg}\033[0m")
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -50,8 +53,12 @@ def checkIsAdmin():
         exit()
 
 
+def _run(cmd, **kwargs):
+    return subprocess.run(cmd, shell=True, capture_output=True, **kwargs)
+
+
 def checkJDK():
-    result = subprocess.run('java -version', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    result = _run('java -version')
     if result.returncode != 0:
         _log('error', 'Java not found. Please verify your JDK installation.')
         exit()
@@ -71,13 +78,9 @@ def git_clone(url, clone_dir='.'):
 
 def detect_pkg_manager():
     for pm in ('apt-get', 'dnf'):
-        if subprocess.run(f'which {pm}', shell=True, capture_output=True).returncode == 0:
+        if _run(f'which {pm}').returncode == 0:
             return pm
     return None
-
-
-def _run(cmd, **kwargs):
-    return subprocess.run(cmd, shell=True, **kwargs)
 
 
 # ---------------------------------------------------------------------------
@@ -86,10 +89,7 @@ def _run(cmd, **kwargs):
 
 def sdkInfo():
     url_os = {'Darwin': 'mac', 'Linux': 'linux', 'Windows': 'win'}[_os]
-    pkg = re.findall(
-        r"commandlinetools-" + url_os + r"-[\d]{8}_latest\.zip",
-        requests.get('https://developer.android.com/studio#command-tools').text
-    )[0]
+    pkg = re.findall(r"commandlinetools-" + url_os + r"-[\d]{8}_latest\.zip", requests.get('https://developer.android.com/studio#command-tools').text)[0]
     return {'tools': 'https://dl.google.com/android/repository/' + pkg}
 
 
@@ -119,9 +119,9 @@ def downloadSDK():
 
         shutil.copytree('src/pydroid/licenses', sdkenv + '/licenses', dirs_exist_ok=True)
 
-        sdklist = subprocess.check_output(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', shell=True, encoding='utf-8')
-        _build = sorted(re.findall(r'build-tools;(.*?)[\s\n]', sdklist), reverse=True)[0]
+        sdklist = _run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', text=True).stdout
 
+        _build = sorted(re.findall(r'build-tools;(.*?)[\s\n]', sdklist), reverse=True)[0]
         _log('info', f'Installing build-tools {_build}')
         _run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --install "build-tools;{_build}"')
 
@@ -131,7 +131,7 @@ def downloadSDK():
 
         _log('success', 'SDK environment ready')
     else:
-        sdklist = subprocess.check_output(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', shell=True, encoding='utf-8')
+        sdklist = _run(f'{sdkenv}/cmdline-tools/latest/bin/sdkmanager --list', text=True).stdout
         _build = sorted(re.findall(r'build-tools;(.*?)[\s\n]', sdklist), reverse=True)[0]
         _log('success', 'SDK environment already present')
 
@@ -147,7 +147,7 @@ def installHypervisor():
         _log('success', 'Hypervisor.Framework is built-in on macOS — nothing to install')
 
     elif _os == 'Linux':
-        cpu_virt = subprocess.run('egrep -c "(vmx|svm)" /proc/cpuinfo', shell=True, capture_output=True, text=True)
+        cpu_virt = _run('egrep -c "(vmx|svm)" /proc/cpuinfo', text=True)
         if cpu_virt.stdout.strip() == '0':
             _log('warning', 'CPU may not support hardware virtualization (vmx/svm not found)')
 
@@ -156,7 +156,7 @@ def installHypervisor():
             _log('error', 'No supported package manager found (apt-get or dnf)')
             return
 
-        kvm_installed = subprocess.run('which qemu-kvm', shell=True, capture_output=True).returncode == 0
+        kvm_installed = _run('which qemu-kvm').returncode == 0
         if not kvm_installed:
             _log('info', f'Installing KVM via {pm}')
             if pm == 'apt-get':
@@ -171,7 +171,7 @@ def installHypervisor():
     elif _os == 'Windows':
         _log('info', 'Checking Windows Hypervisor Platform (WHPX)')
         ps_cmd = 'powershell -Command "(Get-WindowsOptionalFeature -Online -FeatureName HypervisorPlatform).State"'
-        result = subprocess.run(ps_cmd, shell=True, capture_output=True, text=True)
+        result = _run(ps_cmd, text=True)
         state = result.stdout.strip()
 
         if state == 'Enabled':
@@ -192,18 +192,26 @@ def installHypervisor():
 def defEnvironment(variable, value1, value2):
     current_value = os.environ.get(variable)
     if current_value is None or value2 not in current_value:
-        os.environ[variable] = value1  # current session
+        os.environ[variable] = value1
 
         if _os in ('Darwin', 'Linux'):
-            _run(f'echo \'{variable}="{value2}"\' >> /etc/profile')
-            _run('source /etc/profile')
+            profile = open('/etc/profile').read()
+            if value2 not in profile:
+                _run(f'echo \'{variable}="${{variable}}{value2}"\' >> /etc/profile')
+                _run('source /etc/profile')      
 
         if _os == 'Windows':
-            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment', 0, winreg.KEY_SET_VALUE | winreg.KEY_CREATE_SUB_KEY)
-            winreg.SetValueEx(key, variable, 0, winreg.REG_SZ, value2)
-            winreg.CloseKey(key)
+            try:
+                reg_value = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment'), variable)[0]
+            except FileNotFoundError:
+                reg_value = ''
 
-        _log('success', f'{variable} set')
+            if value2 not in reg_value:
+                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment', 0, winreg.KEY_SET_VALUE | winreg.KEY_CREATE_SUB_KEY)
+                winreg.SetValueEx(key, variable, 0, winreg.REG_SZ, reg_value + value2)
+                winreg.CloseKey(key)
+
+    _log('success', f'{variable} set')
 
 def installEnvironment():
     _log('step', '[*] Environment Variables')
@@ -215,11 +223,11 @@ def installEnvironment():
 
     if _os in ('Darwin', 'Linux'):
         upath = ':{_}/emulator:{_}/emulator/bin64:{_}/platform-tools:{_}/build-tools/{b}:{_}/cmdline-tools/latest/bin'.format(_=sdkenv, b=_build)
-        defEnvironment('PATH', spath + upath, spath + upath)
+        defEnvironment('PATH', spath + upath, upath)
     elif _os == 'Windows':
         key = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment'), 'Path')[0]
         wpath = ';{_}\\emulator;{_}\\emulator\\bin64;{_}\\platform-tools;{_}\\build-tools\\{b};{_}\\cmdline-tools\\latest\\bin'.format(_=sdkenv, b=_build)
-        defEnvironment('PATH', spath + wpath, key + wpath)
+        defEnvironment('PATH', spath + wpath, wpath)
 
 
 # ---------------------------------------------------------------------------
@@ -237,7 +245,7 @@ def updateSDK():
             for _file in files:
                 _, ext = os.path.splitext(_file)
                 if not ext:
-                    _type = subprocess.check_output(f'file {folders}/{_file}', shell=True)
+                    _type = _run(f'file {folders}/{_file}', text=True).stdout
                     if 'executable' in _type.decode():
                         os.chmod(f'{folders}/{_file}', 0o744)
 
@@ -249,25 +257,25 @@ def updateSDK():
     _log('success', 'SDK packages up to date')
 
     _log('step', '[*] Hardware Acceleration')
-    accel = subprocess.run(f'{sdkenv}/emulator/emulator -accel-check', shell=True, capture_output=True, text=True)
+    accel = _run(f'{sdkenv}/emulator/emulator -accel-check', text=True)
     for line in accel.stdout.splitlines():
         line = line.strip()
-        if line and line not in ('accel:', 'accel'):
-            if 'usable' in line:
-                _log('success', line)
-            elif 'not' in line.lower():
-                _log('warning', line)
-            else:
-                _log('info', line)
-
-    _log('success', 'Setup complete you can now create your emulators')
-
+        # Filtre les lignes vides, "accel:", et les nombres seuls (ex: "0")
+        if not line or line in ('accel:', 'accel') or line.isdigit():
+            continue
+        if 'usable' in line:
+            _log('success', line)
+        elif 'not' in line.lower():
+            _log('warning', line)
+        else:
+            _log('info', line)
 
 # ---------------------------------------------------------------------------
 # Misc
 # ---------------------------------------------------------------------------
 
 def rootAVD():
+    _log('step', '[*] Modules')
     if Path('./src/pydroid/modules/rootAVD-master').exists():
         _log('success', 'rootAVD already present')
     else:

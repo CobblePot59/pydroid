@@ -33,6 +33,23 @@
       </footer>
     </div>
 
+    <div class="modal fade" id="pydroidLoadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content app-card">
+          <div class="modal-body p-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+              <div class="fw-semibold" data-loading-title>Working...</div>
+            </div>
+            <div class="progress" style="height: 10px;">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+            </div>
+            <div class="app-muted small mt-2" data-loading-subtext>Please wait. This can take a while.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="{{ url_for('static', filename='plugins/jquery/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='plugins/jquery/jquery-ui.js') }}"></script>
     <script src="{{ url_for('static', filename='plugins/bootstrap/bootstrap.bundle.min.js') }}"></script>
@@ -40,6 +57,7 @@
     <script src="{{ url_for('static', filename='plugins/dataTables/dataTables.bootstrap5.js') }}"></script>
     <script src="{{ url_for('static', filename='plugins/toastr/toastr.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/loading.js') }}"></script>
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
     {% block scripts %}{% endblock %}
 

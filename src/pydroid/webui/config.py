@@ -8,3 +8,5 @@ SESSION_COOKIE_SECURE = True
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + path.abspath('src/pydroid/webui/db/pydroid.db')
+
+DEBUG = False

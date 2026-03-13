@@ -1,9 +1,14 @@
 function postAndReload(url, payload) {
+  if (window.PydroidLoading) {
+    const action = url === "/removeEmulator" ? "Deleting emulator..." : "Working...";
+    PydroidLoading.show({ title: action });
+  }
   return $.post(url, payload)
     .done(function () {
       window.location.reload();
     })
     .fail(function () {
+      if (window.PydroidLoading) PydroidLoading.hide();
       if (window.toastr) toastr.error("Something went wrong.");
     });
 }

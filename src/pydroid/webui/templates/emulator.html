@@ -14,7 +14,7 @@
         <div class="fw-semibold"><i class="bi bi-plus-lg me-2"></i>Create emulator</div>
       </div>
       <div class="card-body">
-        <form method="POST" action="{{ url_for('create_emulator') }}" class="row g-2 align-items-end">
+        <form method="POST" action="{{ url_for('create_emulator') }}" class="row g-2 align-items-end" data-ajax-form data-loading-text="Creating emulator...">
           <div class="col-12">
             <label class="form-label" for="name">Name</label>
             <input class="form-control" id="name" name="name" type="text" placeholder="e.g. pixel_api_34" required>

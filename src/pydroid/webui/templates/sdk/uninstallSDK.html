@@ -28,7 +28,7 @@
   </div>
 </div>
 
-<form method="POST" action="{{ url_for('uninstall_sdk') }}">
+<form method="POST" action="{{ url_for('uninstall_sdk') }}" data-ajax-form data-loading-text="Uninstalling SDK image(s)...">
   <div class="sdk-grid">
     {% for s in sdk if s.installed == 1 %}
       <label class="sdk-card app-card card" data-sdk-card data-sdk-text="{{ s.version }} {{ s.image }} {{ s.description }}">
