@@ -260,7 +260,6 @@ def updateSDK():
     accel = _run(f'{sdkenv}/emulator/emulator -accel-check', text=True)
     for line in accel.stdout.splitlines():
         line = line.strip()
-        # Filtre les lignes vides, "accel:", et les nombres seuls (ex: "0")
         if not line or line in ('accel:', 'accel') or line.isdigit():
             continue
         if 'usable' in line:
