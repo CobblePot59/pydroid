@@ -108,7 +108,7 @@ def root_emulator():
     _os = platform.system()
 
     if _os in ('Darwin', 'Linux'):
-        cmd = f'cd {os.getcwd()}/src/pydroid/modules/rootAVD-master && bash "rootAVD.sh {pimage}/ramdisk.img"'
+        cmd = f'cd {os.getcwd()}/src/pydroid/modules/rootAVD-master && bash rootAVD.sh {pimage}/ramdisk.img'
     elif _os == 'Windows':
         cmd = f'cd {os.getcwd()}/src/pydroid/modules/rootAVD-master && cmd /c "rootAVD.bat {pimage}/ramdisk.img"'
 

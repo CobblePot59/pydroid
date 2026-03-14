@@ -1,6 +1,6 @@
 from src.pydroid.webui import config
 from pathlib import Path
-from git import Repo
+import git
 import os
 import platform
 import re
@@ -9,7 +9,7 @@ import subprocess
 import zipfile
 import io
 import shutil
-import winreg
+
 
 sdkenv = str(Path.home() / 'Android/sdk-env')
 sdkhome = str(Path.home() / 'Android/sdk-home')
@@ -35,22 +35,21 @@ def _log(level, msg):
         return
     print(f"{_COLORS.get(level, '')}{msg}\033[0m")
 
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def isAdmin():
-    import ctypes
-    try:
-        return os.getuid() == 0
-    except AttributeError:
-        return ctypes.windll.shell32.IsUserAnAdmin() != 0
-
-
 def checkIsAdmin():
-    if not isAdmin():
-        _log('error', 'This script requires elevated privileges.')
-        exit()
+    try:
+        if os.getuid() == 0:
+            return True
+    except AttributeError:
+        if ctypes.windll.shell32.IsUserAnAdmin() != 0:
+            return True
+
+    _log('error', 'This script requires elevated privileges.')
+    exit()
 
 
 def _run(cmd, **kwargs):
@@ -70,11 +69,6 @@ def save_unzip(url, dest_dir):
     response.raise_for_status()
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
         z.extractall(dest_dir)
-
-
-def git_clone(url, clone_dir='.'):
-    Repo.clone_from(url, clone_dir)
-
 
 def detect_pkg_manager():
     for pm in ('apt-get', 'dnf'):
@@ -169,7 +163,6 @@ def installHypervisor():
             _log('success', 'KVM already installed')
 
     elif _os == 'Windows':
-        _log('info', 'Checking Windows Hypervisor Platform (WHPX)')
         ps_cmd = 'powershell -Command "(Get-WindowsOptionalFeature -Online -FeatureName HypervisorPlatform).State"'
         result = _run(ps_cmd, text=True)
         state = result.stdout.strip()
@@ -192,42 +185,38 @@ def installHypervisor():
 def defEnvironment(variable, value1, value2):
     current_value = os.environ.get(variable)
     if current_value is None or value2 not in current_value:
-        os.environ[variable] = value1
-
+        os.environ[variable] = value1 + value2
         if _os in ('Darwin', 'Linux'):
             profile = open('/etc/profile').read()
-            if value2 not in profile:
-                _run(f'echo \'{variable}="${{variable}}{value2}"\' >> /etc/profile')
-                _run('source /etc/profile')      
-
+            if f'export {variable}=' not in profile:
+                _run(f'echo \'export {variable}="{value1}{value2}"\' >> /etc/profile')
         if _os == 'Windows':
+            import winreg
             try:
                 reg_value = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment'), variable)[0]
             except FileNotFoundError:
                 reg_value = ''
-
             if value2 not in reg_value:
                 key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment', 0, winreg.KEY_SET_VALUE | winreg.KEY_CREATE_SUB_KEY)
-                winreg.SetValueEx(key, variable, 0, winreg.REG_SZ, reg_value + value2)
+                winreg.SetValueEx(key, variable, 0, winreg.REG_SZ, value1 + value2)
                 winreg.CloseKey(key)
+        _log('success', f'{variable} set')
 
-    _log('success', f'{variable} set')
 
 def installEnvironment():
     _log('step', '[*] Environment Variables')
     spath = os.environ.get('PATH', '')
-
-    defEnvironment('ANDROID_HOME', sdkenv, sdkenv)
-    defEnvironment('ANDROID_SDK_ROOT', sdkenv, sdkenv)
-    defEnvironment('ANDROID_SDK_HOME', sdkhome, sdkhome)
-
+    defEnvironment('ANDROID_HOME', '', sdkenv)
+    defEnvironment('ANDROID_SDK_ROOT', '', sdkenv)
+    defEnvironment('ANDROID_SDK_HOME', '', sdkhome)
     if _os in ('Darwin', 'Linux'):
         upath = ':{_}/emulator:{_}/emulator/bin64:{_}/platform-tools:{_}/build-tools/{b}:{_}/cmdline-tools/latest/bin'.format(_=sdkenv, b=_build)
-        defEnvironment('PATH', spath + upath, upath)
+        defEnvironment('PATH', spath, upath)
     elif _os == 'Windows':
+        import winreg
         key = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment'), 'Path')[0]
         wpath = ';{_}\\emulator;{_}\\emulator\\bin64;{_}\\platform-tools;{_}\\build-tools\\{b};{_}\\cmdline-tools\\latest\\bin'.format(_=sdkenv, b=_build)
-        defEnvironment('PATH', spath + wpath, wpath)
+        defEnvironment('PATH', spath, wpath)
 
 
 # ---------------------------------------------------------------------------
@@ -246,7 +235,7 @@ def updateSDK():
                 _, ext = os.path.splitext(_file)
                 if not ext:
                     _type = _run(f'file {folders}/{_file}', text=True).stdout
-                    if 'executable' in _type.decode():
+                    if 'executable' in _type:
                         os.chmod(f'{folders}/{_file}', 0o744)
 
     _run('sdkmanager --update')
@@ -269,8 +258,9 @@ def updateSDK():
         else:
             _log('info', line)
 
+
 # ---------------------------------------------------------------------------
-# Misc
+# Modules
 # ---------------------------------------------------------------------------
 
 def rootAVD():
@@ -279,7 +269,7 @@ def rootAVD():
         _log('success', 'rootAVD already present')
     else:
         _log('info', 'Cloning rootAVD...')
-        git_clone('https://github.com/newbit1/rootAVD.git', clone_dir='./src/pydroid/modules/rootAVD-master')
+        git.Repo.clone_from('https://github.com/newbit1/rootAVD.git', './src/pydroid/modules/rootAVD-master')
         _log('success', 'rootAVD module is installed')
 
     if _os in ('Darwin', 'Linux'):
