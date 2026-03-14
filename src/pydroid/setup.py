@@ -9,6 +9,7 @@ import subprocess
 import zipfile
 import io
 import shutil
+import ctypes
 
 
 sdkenv = str(Path.home() / 'Android/sdk-env')
